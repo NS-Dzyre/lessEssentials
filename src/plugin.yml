@@ -1,7 +1,7 @@
 main: me.Dzyre.lessEssentials.Main
 name: lessEssentials
 version: 0.1
-api-version: 1.18
+api-version: 1.19
 
 commands:
   tpa:
@@ -15,4 +15,12 @@ commands:
   home:
     usage: /<command>
   homes:
+    usage: /<command>
+  spawn:
+    usage: /<command>
+  warp:
+    usage: /<command>
+  setwarp:
+    usage: /<command>
+  delwarp: 
     usage: /<command>

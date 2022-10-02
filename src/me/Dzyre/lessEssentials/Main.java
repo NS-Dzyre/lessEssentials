@@ -28,6 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin implements Listener, CommandExecutor{
 	public static Map<String, String> tpa = new HashMap<String, String>();
 	public static Map<String, String> homes = new HashMap<String, String>();
+	public static Map<String, String> warps = new HashMap<String, String>();
     final static String FilePath = "lessEssentials/homes.txt";
 	
 	@Override
@@ -97,6 +98,43 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor{
 				return true;
 			}
 		}
+
+		if(label.equalsIgnoreCase("warp")) {
+			if(!(sender instanceof Player)) {
+				sender.sendMessage("Only players can warp");
+				return true;
+			}
+			if(args.length < 1) {
+				sender.sendMessage(warps.keySet() + "");
+				return true;
+			}
+			else {
+				Player player = (Player) sender;
+				
+				if(warps.containsKey(args[0])) {
+					String location = warps.get(args[0]);
+					String[] loc = location.split(":");
+					int x = Integer.parseInt(loc[0]);
+					int y = Integer.parseInt(loc[1]);
+					int z = Integer.parseInt(loc[2]);
+					World w = player.getWorld();
+					Location homeLoc = new Location(w,x,y,z);
+					player.sendMessage(ChatColor.GREEN + "Teleporting to warp " + args[0]);
+					player.teleport(homeLoc);
+					return true;
+			}
+		}
+		}
+		if(label.equalsIgnoreCase("spawn")) {
+			if(!(sender instanceof Player)) {
+				sender.sendMessage("Only players can go to spawn");
+				return true;
+			}
+			Player player = (Player) sender;
+			player.teleport(player.getWorld().getSpawnLocation());
+			return true;
+		}
+		
 		if(label.equalsIgnoreCase("home")) {
 			if(!(sender instanceof Player)) {
 				sender.sendMessage("Only players can go home");
@@ -144,6 +182,32 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor{
 			}
 			Player player = (Player) sender;
 			sender.sendMessage(delHome(player, args[0]));
+			return true;
+		}
+		if(label.equalsIgnoreCase("setwarp")) {
+			if(!(sender instanceof Player)) {
+				sender.sendMessage("Only players can set warps");
+				return true;
+			}
+			if(args.length < 1) {
+				sender.sendMessage(ChatColor.RED + "Please type the name of the warp you wish to set");
+				return true;
+			}
+			Player player = (Player) sender;
+			sender.sendMessage(setWarp(player, args[0]));
+			return true;
+		}
+		if(label.equalsIgnoreCase("delwarp")) {
+			if(!(sender instanceof Player)) {
+				sender.sendMessage("Only players can delete warps");
+				return true;
+			}
+			if(args.length < 1) {
+				sender.sendMessage(ChatColor.RED + "Please type the name of the warp you wish to delete");
+				return true;
+			}
+			Player player = (Player) sender;
+			sender.sendMessage(delWarp(player, args[0]));
 			return true;
 		}
 		
@@ -194,7 +258,29 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor{
 			}
 		
 	}
+
 	
+	public String setWarp(Player player, String home) {
+		String uuid = home;
+		int x = player.getLocation().getBlockX();
+		int y = player.getLocation().getBlockY();
+		int z = player.getLocation().getBlockZ();
+		String location = x + ":" + y + ":" + z;
+		if(warps.containsKey(uuid)) {
+			return "Warp already exists!";
+		}
+		warps.put(uuid, location);
+		return ChatColor.GREEN + "Warp " + ChatColor.DARK_RED +  home + ChatColor.GREEN + " created successfully";
+	}
+	
+	public String delWarp(Player player, String home) {
+		String uuid = home;
+		if(!(warps.containsKey(uuid))) {
+			return "Warp doesn't exist!";
+		}
+		warps.remove(uuid);
+		return ChatColor.RED + "Warp " + home + " deleted successfully";
+	}
 	
 	
     public static void getMap () {
