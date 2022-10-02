@@ -173,7 +173,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor{
 		}
 		if(label.equalsIgnoreCase("delhome")) {
 			if(!(sender instanceof Player)) {
-				sender.sendMessage("Only players can delete homes");
+				sender.sendMessage("Only players can delete homes ");
 				return true;
 			}
 			if(args.length < 1) {
