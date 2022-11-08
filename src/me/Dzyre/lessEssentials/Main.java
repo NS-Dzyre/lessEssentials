@@ -30,6 +30,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor{
 	public static Map<String, String> homes = new HashMap<String, String>();
 	public static Map<String, String> warps = new HashMap<String, String>();
     final static String FilePath = "lessEssentials/homes.txt";
+    final static String warpsFilePath = "lessEssentials/warps.txt";
 	
 	@Override
 	public void onEnable() {
@@ -376,5 +377,99 @@ public void WriteToFile () {
 	            }catch(Exception e){}
 	        }
 	    }
+
+public static void getWarpsMap () {
+    
+    //read text file to HashMap
+	warps = getHashMapFromTextFile();
+    
+    //iterate over HashMap entries
+    for(Entry<String, String> entry : warps.entrySet()){
+        System.out.println(entry.getKey() + " => " + entry.getValue() );
+    }
+}
+
+public static Map<String, String> getWarpsHashMapFromTextFile(){
+    
+    Map<String, String> mapFileContents = new HashMap<String, String>();
+    BufferedReader br = null;
+    
+    try{
+        
+        //create file object
+        File file = new File(warpsFilePath);
+        
+        //create BufferedReader object from the File
+        br = new BufferedReader( new FileReader(file) );
+        
+        String line = null;
+        
+        //read file line by line
+        while ( (line = br.readLine()) != null ){
+            
+            //split the line by :
+            String[] parts = line.split(";");
+            
+            //first part is name, second is age
+            String name = parts[0].trim();
+            String location = parts[1].trim();
+            
+            //put name, age in HashMap if they are not empty
+            if(!name.equals("") && !location.equals("") )
+                mapFileContents.put(name, location);
+        }
+                    
+    }catch(Exception e){
+        e.printStackTrace();
+    }finally{
+        
+        //Always close the BufferedReader
+        if(br != null){
+            try { 
+                br.close(); 
+            }catch(Exception e){};
+        }
+    }        
+    
+    return mapFileContents;
+    
+}
+
+public void WriteWarpsToFile () {
+    /*** Change the path ***/
+
+        
+        //new file object
+        File file = new File(warpsFilePath);
+        
+        BufferedWriter bf = null;;
+        
+        try{
+            
+            //create new BufferedWriter for the output file
+            bf = new BufferedWriter( new FileWriter(file) );
+ 
+            //iterate map entries
+            for(Map.Entry<String, String> entry : warps.entrySet()){
+                
+                //put key and value separated by a semicolon
+                bf.write( entry.getKey() + ";" + entry.getValue() );
+                
+                //new line
+                bf.newLine();
+            }
+            
+            bf.flush();
+ 
+        }catch(IOException e){
+            e.printStackTrace();
+        }finally{
+            
+            try{
+                //always close the writer
+                bf.close();
+            }catch(Exception e){}
+        }
+    }
 	
 }
