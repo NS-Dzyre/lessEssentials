@@ -209,7 +209,10 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
         return true;
       }
       if (args.length < 1) {
-        sender.sendMessage(warps.keySet() + "");
+        sender.sendMessage("Warps: ");
+        for(int i = 0; i < warps.ketSet().length(); i++){
+          sender.sendMessage(warps.ketSet()[i] + "\n");
+        }
         return true;
       } else {
         Player player = (Player) sender;
