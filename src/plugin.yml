@@ -24,3 +24,5 @@ commands:
     usage: /<command>
   delwarp: 
     usage: /<command>
+  config:
+    usage: /<command>
