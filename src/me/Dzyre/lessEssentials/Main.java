@@ -26,9 +26,10 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
   public static Map < String, String > tpa = new HashMap < String, String > ();
   public static Map < String, String > homes = new HashMap < String, String > ();
   public static Map < String, String > warps = new HashMap < String, String > ();
-  final static String FilePath = "plugins/lessEssentials/homes.txt";
-  final static String warpsFilePath = "plugins/lessEssentials/warps.txt";
-  public File configFile = new File("plugins/lessEssentials/config.txt");
+  final static String FilePath = Bukkit.getServer().getWorlds().get(0).getName() +"/homes.txt";
+  final static String warpsFilePath = Bukkit.getServer().getWorlds().get(0).getName()  + "/warps.txt";
+  public File configFile = new File(Bukkit.getServer().getWorlds().get(0).getName()  + "/config.txt");
+  
   @Override
   public void onEnable() {
     File file = new File("plugins/lessEssentials");
@@ -56,17 +57,19 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 
     this.getServer().getPluginManager().registerEvents(this, this);
     getMap();
-
+    getWarpsMap();
   }
-
+  
+  // link warps and homes to worlds 
+  
   @Override
   public void onDisable() {
     WriteToFile(FilePath);
     WriteWarpsToFile(warpsFilePath);
     try {
-      if (backupFiles()) {
-        WriteToFile("plugins/lessEssentials/backupHomes.txt");
-        WriteWarpsToFile("plugins/lessEssentials/backupWarps.txt");
+      if (checkConfig("backupLocations")) {
+        WriteToFile(Bukkit.getServer().getWorlds().get(0).getName() + "/backupHomes.txt");
+        WriteWarpsToFile(Bukkit.getServer().getWorlds().get(0).getName()  + "/backupWarps.txt");
       }
     } catch (IOException e1) {
       // TODO Auto-generated catch block
@@ -84,7 +87,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
       writer.write("backupLocations : False \n" +
-        "backupCurrencies : False \n");
+        "backupCurrencies : False \n" + "onePersonSleep : False \n");
     }
   }
 
@@ -210,8 +213,8 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
       }
       if (args.length < 1) {
         sender.sendMessage("Warps: ");
-        for(int i = 0; i < warps.ketSet().length(); i++){
-          sender.sendMessage(warps.ketSet()[i] + "\n");
+        for(int i = 0; i < warps.keySet().size(); i++){
+        	sender.sendMessage(warps.keySet().toArray()[i] + "\n");
         }
         return true;
       } else {
@@ -257,7 +260,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
     if (label.equalsIgnoreCase("homes")) {
       String homesList = ChatColor.DARK_GREEN + "Homes: \n";
       for (String home: homes.keySet()) {
-        if (Bukkit.getPlayer(UUID.fromString(home.split(":")[0])).getName() == sender.getName()) {
+        if (Bukkit.getOfflinePlayer(UUID.fromString(home.split(":")[0])).getName() == ((Player) sender).getName()) {
           homesList = String.join(" ", homesList, ChatColor.GREEN + home.split(":")[1], "\n");
         }
       }
@@ -367,6 +370,8 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
       return "backupCurrencies";
     case 2:
       return "backupLocations";
+    case 3:
+      return "onePersonSleep";
     default:
       return "null";
     }
@@ -480,7 +485,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
   public static void getWarpsMap() {
 
     //read text file to HashMap
-    warps = getHashMapFromTextFile();
+    warps = getWarpsHashMapFromTextFile();
 
     //iterate over HashMap entries
     for (Entry < String, String > entry: warps.entrySet()) {
@@ -570,7 +575,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
     }
   }
 
-  public boolean backupFiles() throws IOException {
+  public boolean checkConfig(String configOption) throws IOException {
     BufferedReader br = null;
     File file = new File("plugins/lessEssentials/config.txt");
     if (!(file.exists())) {
@@ -584,7 +589,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
         String[] parts = line.split(":");
         String name = parts[0].trim();
         String trueOrFalse = parts[1].trim();
-        if (name == "backupLocations" && trueOrFalse.toLowerCase() == "true") {
+        if (name == configOption && trueOrFalse.toLowerCase() == "true") {
           return true;
         }
       }
