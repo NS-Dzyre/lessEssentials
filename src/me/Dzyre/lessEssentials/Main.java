@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -226,11 +227,23 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
           int x = Integer.parseInt(loc[0]);
           int y = Integer.parseInt(loc[1]);
           int z = Integer.parseInt(loc[2]);
-          World w = player.getWorld();
+          String world;
+          if(loc.length <= 3) {
+        	  world = player.getWorld().getName();
+        	  warps.put(args[0], warps.get(args[0]) + ":" + player.getWorld().getName());
+          } else
+          {
+        	  world = loc[3];
+          }
+          World w = Bukkit.getWorld(world);
           Location homeLoc = new Location(w, x, y, z);
           player.sendMessage(ChatColor.GREEN + "Teleporting to warp " + args[0]);
           player.teleport(homeLoc);
           return true;
+        }
+        else {
+        	player.sendMessage("Unknown Warp " + args[0]);
+        	return true;
         }
       }
     }
@@ -328,7 +341,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
     int x = player.getLocation().getBlockX();
     int y = player.getLocation().getBlockY();
     int z = player.getLocation().getBlockZ();
-    String location = x + ":" + y + ":" + z;
+    String location = x + ":" + y + ":" + z + ":" + player.getWorld().getName();
     if (homes.containsKey(uuid)) {
       return "Home already exists!";
     }
@@ -353,7 +366,18 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
       int x = Integer.parseInt(loc[0]);
       int y = Integer.parseInt(loc[1]);
       int z = Integer.parseInt(loc[2]);
-      World w = player.getWorld();
+      String world;
+      if(loc.length <= 3) {
+    	  world = player.getWorld().getName();
+    	  homes.put(uuid, homes.get(uuid) + ":" + player.getWorld().getName());
+      } else
+      {
+    	  world = loc[3];
+      }
+    
+    	  
+      
+      World w = Bukkit.getWorld(world);
       Location homeLoc = new Location(w, x, y, z);
       player.sendMessage(ChatColor.GREEN + "Teleporting to home: " + home);
       player.teleport(homeLoc);
