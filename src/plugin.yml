@@ -1,6 +1,7 @@
 main: me.Dzyre.lessEssentials.Main
 name: lessEssentials
-version: 0.1
+author: Dzyre
+version: 0.2
 api-version: 1.19
 
 commands:
