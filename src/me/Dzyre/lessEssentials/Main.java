@@ -24,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener, CommandExecutor {
   public static Map < String, String > tpa = new HashMap < String, String > ();
+  public static boolean isLoaded = false;
   public static Map < String, String > homes = new HashMap < String, String > ();
   public static Map < String, String > warps = new HashMap < String, String > ();
   final static String FilePath = Bukkit.getServer().getWorlds().get(0).getName() +"/homes.txt";
@@ -51,13 +52,18 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
     }
     this.getCommand("sethome").setExecutor(this);
     this.getCommand("home").setExecutor(this);
+    this.getCommand("homes").setExecutor(this);
     this.getCommand("delhome").setExecutor(this);
     this.getCommand("tpa").setExecutor(this);
     this.getCommand("tpaccept").setExecutor(this);
-
+    this.getCommand("tpdeny").setExecutor(this);
+    this.getCommand("setwarp").setExecutor(this);
+    this.getCommand("delwarp").setExecutor(this);
+    this.getCommand("warp").setExecutor(this);
+    this.getCommand("config").setExecutor(this);
+    
     this.getServer().getPluginManager().registerEvents(this, this);
-    getMap();
-    getWarpsMap();
+   
   }
   
   // link warps and homes to worlds 
@@ -83,11 +89,21 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
     }
   }
 
+
+  @EventHandler
+  public void loadMapsFromFIrstPerson(PlayerJoinEvent event){
+    if(!isLoaded){
+      getMap();
+      getWarpsMap();
+      isLoaded = true;
+    }
+  }
+
   public void writeConfig() throws IOException {
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
-      writer.write("backupLocations : False \n" +
-        "backupCurrencies : False \n" + "onePersonSleep : False \n");
+      writer.write("backupLocations : True \n" +
+        "backupCurrencies : False \n");
     }
   }
 
@@ -165,7 +181,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
         e.printStackTrace();
       }
       return true;
-    }
+    }if(sender.hasPermission("tpa")){
     if (label.equalsIgnoreCase("tpa")) {
       if (!(sender instanceof Player)) {
         sender.sendMessage("Only players can TPA");
@@ -205,8 +221,9 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
         return true;
       }
     }
-
-    if (label.equalsIgnoreCase("warp")) {
+  }
+  if(sender.hasPermission("warp")){
+      if (label.equalsIgnoreCase("warp")) {
       if (!(sender instanceof Player)) {
         sender.sendMessage("Only players can warp");
         return true;
@@ -246,6 +263,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
         }
       }
     }
+  }
     if (label.equalsIgnoreCase("spawn")) {
       if (!(sender instanceof Player)) {
         sender.sendMessage("Only players can go to spawn");
@@ -255,8 +273,16 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
       player.teleport(player.getWorld().getSpawnLocation());
       return true;
     }
-
+    if(sender.hasPermission("home")){
     if (label.equalsIgnoreCase("home")) {
+      if(sender.hasPermission("adminHomes")){
+      if(args[0].contains(":")){
+        Player player = (Player) sender;
+        if(!Bukkit.getOfflinePlayer(args[0].split(":")[0]) == null){
+          goHome(player, args[0].split[":"][1], Bukkit.getOfflinePlayer(args[0].split(":")[0]).getUniqueId())
+        }
+      }
+    }
       if (!(sender instanceof Player)) {
         sender.sendMessage("Only players can go home");
         return true;
@@ -266,7 +292,7 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
         return true;
       }
       Player player = (Player) sender;
-      goHome(player, args[0]);
+      goHome(player, args[0], player.getUniqueId());
       return true;
     }
     if (label.equalsIgnoreCase("homes")) {
@@ -305,6 +331,8 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
       sender.sendMessage(delHome(player, args[0]));
       return true;
     }
+  }
+  if(sender.hasPermission("controlWarps")){
     if (label.equalsIgnoreCase("setwarp")) {
       if (!(sender instanceof Player)) {
         sender.sendMessage("Only players can set warps");
@@ -331,9 +359,9 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
       sender.sendMessage(delWarp(player, args[0]));
       return true;
     }
-
     return false;
   }
+}
 
   public String setHome(Player player, String home) {
     String uuid = player.getUniqueId() + ":" + home;
@@ -357,8 +385,8 @@ public class Main extends JavaPlugin implements Listener, CommandExecutor {
     return ChatColor.RED + "Home " + home + " deleted successfully";
   }
 
-  public void goHome(Player player, String home) {
-    String uuid = player.getUniqueId() + ":" + home;
+  public void goHome(Player player, String home, String uuid) {
+      uuid = uuid + ":" + home;
     if (homes.containsKey(uuid)) {
       String location = homes.get(uuid);
       String[] loc = location.split(":");
