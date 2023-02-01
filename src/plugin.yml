@@ -27,3 +27,5 @@ commands:
     usage: /<command>
   config:
     usage: /<command>
+  tpdeny:
+    usage: /<command>
